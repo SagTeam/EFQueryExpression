@@ -196,42 +196,7 @@ namespace Sag.Data.Common.Query
                 "isnull" => QueryComparison.IsNullValue,
                 _ => QueryComparison.Contains,
             };
-            //switch (comparStr.ToLower())
-            //{
-            //    case "<":
-            //        return QueryComparison.Less;
-            //    case ">":
-            //        return QueryComparison.Greater;
-            //    case "<=":
-            //        return QueryComparison.LessEqual;
-            //    case ">=":
-            //        return QueryComparison.GreqterEqual;
-            //    case "=":
-            //        return QueryComparison.Equal;
-            //    case "<>":
-            //    case "!=":
-            //        return QueryComparison.NotEqual;
-            //    case "like":
-            //        return QueryComparison.Contains;
-            //    case "notlike":
-            //    case "!like":
-            //        return QueryComparison.NotContains;
-            //    case "in":
-            //        return QueryComparison.InList;
-            //    case "notin":
-            //    case "!in":
-            //        return QueryComparison.NotInList;
-            //    case "startwith":
-            //        return QueryComparison.StartWith;
-            //    case "endwith":
-            //        return QueryComparison.EndWith;
-            //    case "is null":
-            //    case "isnull":
-            //        return QueryComparison.IsNullValue;
-            //    default:
-            //        return QueryComparison.Contains;
-
-            //}
+          
         }
 
         #endregion //private func
