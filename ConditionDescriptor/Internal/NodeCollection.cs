@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
-namespace Sag.Data.Common.Query
+namespace Sag.Data.Common.Query.Internal
 {
 
     /// <summary>
@@ -12,11 +13,11 @@ namespace Sag.Data.Common.Query
     /// <typeparam name="TOperator">操作符,可以是:逻辑,比较,计算</typeparam>
     /// <typeparam name="TValue">被操作表达式,可以是:列,值,条件组</typeparam>
     //[DebuggerTypeProxy(typeof(QueryPartsCollectionDebugView<,>))]
-    [DebuggerDisplay("Count={_count},  NodeType:{typeof(TValue).Name,nq}")]
-    //[Serializable]
+    [DebuggerDisplay("NodeCollection[{_count}] <{typeof(TOperator).Name,nq},{typeof(TValue).Name,nq}>")]
+    [JsonConverter(typeof(NodeCollectionJsonConverter))]
     public partial class NodeCollection<TOperator, TValue> : IEnumerable<NodeOperatorPair<TOperator, TValue>>
        where TValue : QueryNode//, IEquatable<TValue>
-       where TOperator : Enum
+       where TOperator : struct, Enum
     {
 
         #region 变量
@@ -28,7 +29,7 @@ namespace Sag.Data.Common.Query
         IEqualityComparer<TValue> _comparer;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        const int defaultBucketsSize = 128;
+        const int defaultBucketsSize = 4;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         const int freeLinkStart = -3;
@@ -53,13 +54,10 @@ namespace Sag.Data.Common.Query
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         int _freeLink = 0;
-         
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         int _capacity = defaultBucketsSize;
-
-        //[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        //int _linkFreeCount = defaultBucketsSize;
-
+ 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         int _bucketsLinkSize = defaultBucketsSize;
 
@@ -78,9 +76,9 @@ namespace Sag.Data.Common.Query
         #region 属性和索引
         public int Count { get => _count; }
 
-        public NodeOperatorPair<TOperator,TValue>[] Items 
-        { 
-            get => _members.ToArray(0); 
+        public NodeOperatorPair<TOperator, TValue>[] Items
+        {
+            get => _members.ToArray(0);
             set => ResetFromMembers(value);
         }
 
@@ -91,7 +89,7 @@ namespace Sag.Data.Common.Query
         /// <returns></returns>
         public NodeOperatorPair<TOperator, TValue> this[int index]
         {
-            get => _members[index]; 
+            get => _members[index];
         }
 
         #endregion 属性和索引
@@ -115,10 +113,15 @@ namespace Sag.Data.Common.Query
 
         void initClass(int capacity)
         {
+            _count = 0;
+            _linkCount = 0;
+            _version = 0;
+            _freeLink = 0;
+            _freeLinkCount = 0;
             _bucketsLinkSize = capacity;
             _bucketsLink = new int[_bucketsLinkSize];
             _links = new Link[_bucketsLinkSize];
-            _members = new InternalList<NodeOperatorPair<TOperator, TValue>>();
+            _members = new InternalList<NodeOperatorPair<TOperator, TValue>>(_bucketsLinkSize);
         }
 
         /// <summary>
@@ -129,10 +132,12 @@ namespace Sag.Data.Common.Query
         /// <returns></returns>
         int GetMemberHashCode(TOperator op, TValue value)
         {
-            Debug.Assert(value != null,"不能为空!");
+            Debug.Assert(value != null, "不能为空!");
             var comparer = _comparer;
-            var valueHashCode = comparer == null ? ((object)value)?.GetHashCode()?? 0: comparer.GetHashCode(value);
-            return HashCode.Combine(op?.GetHashCode()??0, valueHashCode);
+            //var valueHsCode = comparer == null ? ((object)value)?.GetHashCode()?? 0: comparer.GetHashCode(value);
+            var valueHsCode = comparer?.GetHashCode(value) ?? value?.GetHashCode() ?? 0;
+            //return HashCode.Combine(op?.GetHashCode()??0, valueHashCode);
+            return HashCode.Combine(op, valueHsCode);
         }
 
         double GetResizefactor(int count)
@@ -185,7 +190,7 @@ namespace Sag.Data.Common.Query
             var memberHashCode = (uint)GetMemberHashCode(op, value);
             var linkBucketIndex = (int)(memberHashCode % (uint)_bucketsLink.Length);
             ref var linkBucket = ref _bucketsLink[linkBucketIndex];
-            var i = linkBucket - 1;   //bucket记录的是从1算起,所以应该减回1
+            var i = linkBucket - 1;   //bucket记录的是从1算起(链的索引+1),所以应该减回1
             var loopLinkCount = 0;
             //找到的目标元素所在的链
             var existsLinkIndex = -1;
@@ -234,7 +239,7 @@ namespace Sag.Data.Common.Query
             if (existsLinkIndex == -1)
             {
                 int linkIndex;
-                //如果删除完链的元素后,链空闲了,进行复用
+                //如果有自由链(删除完链的元素后,链空闲了,进行复用)
                 if (_freeLinkCount > 0)
                 {
                     linkIndex = _freeLink;
@@ -262,7 +267,7 @@ namespace Sag.Data.Common.Query
                 link.members.Add(_count);
                 link.hashCode = memberHashCode;
                 link.next = linkBucket - 1;                 //相邻链的桶值(邻链的索引)                                                            
-                linkBucket = linkIndex + 1;                 //link所记录的值,总是比link的真实索引大1(链从1开始计数)
+                linkBucket = linkIndex + 1;                 //link桶所记录的值,总是比link的真实索引大1(链在桶中从1开始计数)
                 //*_linkCount++;
             }
             else
@@ -293,7 +298,7 @@ namespace Sag.Data.Common.Query
             //Debug.Assert(members != null, MsgStrings.ExpectedEntriesNull);
             var comparer = _comparer;
             uint hashCode = (uint)GetMemberHashCode(op, value);
-            // 链是从1开始计数的,这里应减回1与从0计数的元素集匹配
+            // 链在桶中是从1开始计数的,这里应减回1与从0计数的元素集匹配
             var i = buckets[hashCode % (uint)buckets.Length] - 1;
             var findedMember = new InternalList<int>();
             do
@@ -321,7 +326,7 @@ namespace Sag.Data.Common.Query
                             if (findedCount >= iCount)
                             { }
                             findedMember.Add(e);
-                            //*result[findedCount] = e;
+                            //result[findedCount] = e;
                             if (byReference)
                                 break;
 
@@ -347,29 +352,30 @@ namespace Sag.Data.Common.Query
         /// <summary>
         /// 通过设置成员列表,恢复集合
         /// </summary>
-        void ResetFromMembers(NodeOperatorPair<TOperator,TValue>[] memberArray)
+        void ResetFromMembers(NodeOperatorPair<TOperator, TValue>[] memberArray)
         {
             if (memberArray == null || memberArray.Length == 0)
-            { 
+            {
                 Clear();
                 return;
             }
-            _version = 0;
+
             _count = 0;
             _linkCount = 0;
+            _version = 0;
             _freeLink = 0;
-//            _linkFreeCount = 0;
+            _freeLinkCount = 0;
             _bucketsLinkSize = memberArray.Length;
             _bucketsLink = new int[_bucketsLinkSize];
             _links = new Link[_bucketsLinkSize];
-            _members = new InternalList<NodeOperatorPair<TOperator, TValue>>(memberArray);
+            _members = new InternalList<NodeOperatorPair<TOperator, TValue>>();
             var members = memberArray;
             foreach (var mb in members)
             {
                 if (mb == null) continue;
-                var op = mb.Operator; 
+                var op = mb.Operator;
                 var value = mb.Node;
-                if (op == null || mb.Node == null) continue;
+                // if (op == null || mb.Node == null) continue;
                 var comparer = _comparer;
                 var memberHashCode = (uint)GetMemberHashCode(op, value);
                 var linkBucketIndex = (int)(memberHashCode % (uint)_bucketsLink.Length);
@@ -390,8 +396,8 @@ namespace Sag.Data.Common.Query
                         var j = _links[i].members[0];
                         if (members[j].hashCode == memberHashCode)
                         {
-                                existsLinkIndex = i;
-                                break;
+                            existsLinkIndex = i;
+                            break;
                         }
                     }
                     //如果循环过程中,发生了并发插入
@@ -409,8 +415,8 @@ namespace Sag.Data.Common.Query
                 if (existsLinkIndex == -1)
                 {
                     int linkIndex;
-                        linkIndex = _linkCount;
-                        _linkCount++;
+                    linkIndex = _linkCount;
+                    _linkCount++;
                     //对链进行分桶
                     ref var link = ref _links![linkIndex];
                     link.members = new InternalList<int>();   //指向刚新建的元素
@@ -426,9 +432,10 @@ namespace Sag.Data.Common.Query
                     //把重复的元素的索引加入链的元素列表中
                     _links[existsLinkIndex].members.Add(_count);
                 }
+                _members.Add(mb);
                 _count++;
             }
-            
+
         }
 
         #endregion //private methods
@@ -463,6 +470,8 @@ namespace Sag.Data.Common.Query
             int[] buckets = _bucketsLink;
             var members = _members;
             int loopsCount = 0;
+            //if (buckets != null)
+            //{
             //Debug.Assert(members != null, MsgStrings.ExpectedEntriesNull);
             uint hashCode = (uint)GetMemberHashCode(op, value);
             uint bucket = hashCode % (uint)buckets.Length;
@@ -493,7 +502,7 @@ namespace Sag.Data.Common.Query
                                 else
                                     _links[last].next = link.next;             //用上一个被检查的链替换被命中链
 
-                                link.next = freeLinkStart - _freeLink;          //置为空闲
+                                link.next = freeLinkStart - _freeLink;          //置为空闲链
                                 link.members = null;
 
                                 //标记空闲链索引
@@ -555,11 +564,8 @@ namespace Sag.Data.Common.Query
 
         public void Clear()
         {
-            _count = 0;
-            _linkCount = 0;
-            _version = 0;
-            _freeLink = 0;
-//            _linkFreeCount = 0;
+
+            //            _linkFreeCount = 0;
             initClass(_capacity);
 
         }
@@ -595,16 +601,13 @@ namespace Sag.Data.Common.Query
 
         public override string ToString()
         {
-            return "QueryPartCollections";
+            return $"QueryNodeCollections[{_count}]<{typeof(TOperator).Name},{typeof(TValue).Name}>";
         }
 
         #endregion public methods
 
 
         #region 实现枚举接口
-
-        //public Enumerator GetEnumerator()
-        //    => new Enumerator(this);
 
         public IEnumerator<NodeOperatorPair<TOperator, TValue>> GetEnumerator()
         {

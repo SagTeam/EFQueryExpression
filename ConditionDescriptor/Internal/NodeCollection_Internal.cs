@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Sag.Data.Common.Query
+namespace Sag.Data.Common.Query.Internal
 {
 
     /// <summary>
@@ -12,8 +12,7 @@ namespace Sag.Data.Common.Query
     /// </summary>
     /// <typeparam name="T"></typeparam>
     //[DebuggerTypeProxy(typeof(QueryExprInternalListDebugView<>))]
-    [DebuggerDisplay("Count = {Count}  [{typeof(T).Name,nq}]")]
-  //  [Serializable]
+    [DebuggerDisplay("InnerList:[{_count}] <{typeof(T).Name,nq}>")]
     internal class InternalList<T> : IEnumerable<T>//, ICollection<T>
     {
         #region 变量
@@ -150,7 +149,7 @@ namespace Sag.Data.Common.Query
         internal T[] ToArray(int index, int count = 0)
         {
             if (count == 0) count = _count - index;//_items.Length-index;
-            if (index < 0 || count < 0 || _count - index - count < 0)//_items.Length - index - count < 0
+            if (index < 0 || count < 0 || count>_count||(index>_count-1 &&index!=0))
                 throw new IndexOutOfRangeException(MsgStrings.IndexOutOfRange);
             var arr = new T[count];
             Array.Copy(_items, index, arr, 0, count);

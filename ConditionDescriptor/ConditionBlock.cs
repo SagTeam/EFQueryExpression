@@ -1,4 +1,7 @@
-﻿namespace Sag.Data.Common.Query
+﻿using System.Text.Json.Serialization;
+using Sag.Data.Common.Query.Internal;
+
+namespace Sag.Data.Common.Query
 {
 
     #region Class QueryConditionBlock
@@ -7,6 +10,7 @@
     /// 查询条件组,包含查询参数集合和查询块集合,这是一个树形结构,条件组内可以有独立的查询条件,也可以同时有子条件组,任意嵌套.
     /// 它可以表示这样的条件:field1="value1"  and (field2="value2" or (field3="value3" and field4="value4"))
     /// </summary>
+    [JsonConverter(typeof(NodeBlockJsonConverter))]
     public class ConditionBlock : QueryBlock<ConditionItem, ConditionBlock, QueryLogical>
     {
         #region 构造
@@ -65,10 +69,8 @@
             {
                 "or" => QueryLogical.Or,
                 "and" => QueryLogical.And,
-                "not" => QueryLogical.Not,
-                "any" => QueryLogical.Any,
-                //"andnot"=>Querylogical.AndNot,
-                //"ornot"=>Querylogical.OrNot,
+                //"not" => QueryLogical.Not,
+                //"any" => QueryLogical.Any,
                 _ => QueryLogical.And,
             };
         }
@@ -81,17 +83,7 @@
 
         #endregion private func
 
-        //private void ClassTerminate()
-        //{
-
-        //}
-
-        //~QueryParamBlock()
-        //{
-        //    ClassTerminate();
-        //    //base.Finalize();
-        //}
-
+    
     }
 
     #endregion  //end region Class QueryConditionBlock

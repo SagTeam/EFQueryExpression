@@ -117,49 +117,87 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ArgumentsIndexOutOfRange" xml:space="preserve">
+    <value>方法{0}参数索引超出范围。</value>
+    <comment>0: Funcion Name;</comment>
+  </data>
   <data name="DestTypeForConvert" xml:space="preserve">
     <value>转换目标</value>
   </data>
   <data name="ExpectedMemberListNull" xml:space="preserve">
-    <value>目标集合不允许为空!</value>
+    <value>目标集合不允许为空！</value>
   </data>
   <data name="IndexOutOfRange" xml:space="preserve">
     <value>索引超出范围</value>
   </data>
   <data name="InvalidObjectType" xml:space="preserve">
-    <value>值 '{0}' 不是类型 '{1}' 无法应用到集合.</value>
+    <value>值 “{0}” 不是类型 “{1}” 无法应用到集合。</value>
+    <comment>0:Value; 1:ValueType;</comment>
+  </data>
+  <data name="InvalidParamType" xml:space="preserve">
+    <value>参数{0}类型错误，应为{1}。</value>
+    <comment>0: parameter name</comment>
   </data>
   <data name="InvalidTypeConvert" xml:space="preserve">
-    <value>类型{0}转换错误!</value>
+    <value>类型{0}转换错误！</value>
   </data>
-  <data name="Invalidvalue" xml:space="preserve">
-    <value>参数: {0}值错误</value>
+  <data name="InvalidValue" xml:space="preserve">
+    <value>参数: “{0}”值错误</value>
+    <comment>0:Parameter Name</comment>
+  </data>
+  <data name="JsonCannotConvertToType" xml:space="preserve">
+    <value>无法转换Json:”{0}“到”{1}“。</value>
+    <comment>Json</comment>
+  </data>
+  <data name="JsonDeserializeCollectionHasError" xml:space="preserve">
+    <value>在Json反系列化集合节点过程发生了错误。</value>
+    <comment>Json</comment>
+  </data>
+  <data name="JsonTokenTypeNotPropertyName" xml:space="preserve">
+    <value>令牌:“{0}”不是Json属性名称令牌类型 。</value>
+    <comment>JsonToken</comment>
   </data>
   <data name="MemberNotDefinedForType" xml:space="preserve">
-    <value> '{0}' 不是类型 '{1}' 的定义</value>
+    <value> “{0}” 不是类型 “{1}” 的定义</value>
+    <comment>0:MemberName; 1:The Type that has include Member</comment>
+  </data>
+  <data name="NotJsonArrayStart" xml:space="preserve">
+    <value>不是Json数组开头界定。</value>
+    <comment>Json</comment>
+  </data>
+  <data name="NotJsonObjectStart" xml:space="preserve">
+    <value>不是Json对象开头界定。</value>
+    <comment>Json</comment>
   </data>
   <data name="NullGetOperatorWithStringDelegate" xml:space="preserve">
-    <value>未设置获取操作符枚举的函数委托.请先设置属性{0}.</value>
+    <value>未设置获取操作符枚举的函数委托.请先设置属性“{0}“。</value>
+    <comment>0:Name of The GetOperatorWithStringdelegate property </comment>
   </data>
   <data name="ParameterType" xml:space="preserve">
     <value>类型参数</value>
   </data>
   <data name="PropertyDoesNotHaveGetter" xml:space="preserve">
-    <value>属性 '{0}' 没有读访问器</value>
+    <value>属性 ”{0}“ 没有读访问器</value>
+  </data>
+  <data name="PropertyNameCanotNull" xml:space="preserve">
+    <value>属性名称不能为空！</value>
   </data>
   <data name="TypeCannotNull" xml:space="preserve">
-    <value>{0} 类型不能为空!</value>
+    <value>”{0}“ 类型不能为空！</value>
+    <comment>0:The type</comment>
   </data>
   <data name="TypeContainsGenericParameters" xml:space="preserve">
-    <value>类型 {0} 包含泛型参数</value>
+    <value>类型 ”{0}“ 包含泛型参数</value>
+    <comment>0:The type</comment>
   </data>
   <data name="TypeNotIEnumerable" xml:space="preserve">
-    <value>类型 '{0}' 不可枚举</value>
+    <value>类型 ”{0}“ 不可枚举</value>
+    <comment>0:The type</comment>
   </data>
   <data name="TypeParameterIsNotDelegate" xml:space="preserve">
-    <value>类型参数不能为委托类型</value>
+    <value>类型参数不能为委托类型。</value>
   </data>
   <data name="ValueCannotNull" xml:space="preserve">
-    <value>值不能为空!</value>
+    <value>{0},值不能为空！</value>
   </data>
 </root>

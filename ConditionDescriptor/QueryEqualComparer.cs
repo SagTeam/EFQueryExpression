@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Sag.Data.Common.Query.Internal;
 //using System.Diagnostics.CodeAnalysis;
 
 //Predicate
@@ -32,29 +33,38 @@ namespace Sag.Data.Common.Query
         [MethodImpl(MethodImplOptions.Synchronized)]
         public bool Equals([AllowNull] T x, [AllowNull] T y)
         {
-            if (_CompareFunc == null)
-            {
-                _CompareFunc = (x, y) =>
-                {
-                    if (ReferenceEquals(x, null) || ReferenceEquals(y, null)) return false; //任何一个为Null
-                    if (ReferenceEquals(x, y)) return true;  //是否同引用的相同实例
-
-                    return x.GetHashCode() == y.GetHashCode();
-
-                };
-            }
-            return _CompareFunc(x, y);
+            return GetComparer()(x, y);
         }
 
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public new bool Equals(object x, object y)
         {
-            if (x == y) return true;
-            if (x == null || y == null) return false;
-            if ((x is T) && (y is T)) return Equals((T)x, (T)y);
-            ///错误的参数类型,不能比较
-            return false;
+ 
+
+            var comp = GetComparer();
+            if (x is T xt) return comp(xt, y);   //x是T
+            if (y is T ) return false;    //x不是T,但y 是T
+            throw new NotSupportedException();   //两个都不是T,放弃比较.
+
+ 
+        }
+
+        private Func<T,object,bool> GetComparer()
+        {
+            if (_CompareFunc == null)
+            {
+                _CompareFunc = (x, y) =>
+                {
+                    if (ReferenceEquals(x, null) && ReferenceEquals(y, null)) return true;  //同时为null
+                    if (ReferenceEquals(x, null) || ReferenceEquals(y, null)) return false; //只有其中一个为null
+                    if (ReferenceEquals(x, y)) return true;  //是否同引用的相同实例
+                    if (!(y is T yt)) return false;
+                    return x.GetHashCode() == yt.GetHashCode();
+
+                };
+            }
+            return _CompareFunc;
         }
 
 

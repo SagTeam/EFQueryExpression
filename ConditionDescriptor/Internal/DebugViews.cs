@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
+using Sag.Data.Common.Query.Internal;
 
 namespace Sag.Data.Common.Query
 {
@@ -31,11 +31,11 @@ namespace Sag.Data.Common.Query
         }
     }
 
-    internal sealed class QueryExprInternalListDebugView<T>
+    internal sealed class NodeInternalListDebugView<T>
     {
         private readonly InternalList<T> _collection;
         private T[]? _catchedList;
-        public QueryExprInternalListDebugView(InternalList<T> collection)
+        public NodeInternalListDebugView(InternalList<T> collection)
         {
             if (collection == null)
             {
@@ -56,11 +56,11 @@ namespace Sag.Data.Common.Query
     }
 
     
-    internal sealed class QueryPartsCollectionDebugView<Op, Expr> where Op : Enum where Expr:QueryNode//,IEquatable<Expr>
+    internal sealed class NodeCollectionDebugView<Op, Expr> where Op :struct, Enum where Expr:QueryNode//,IEquatable<Expr>
     {
         private readonly NodeCollection<Op, Expr> _collection;
         private NodeOperatorPair<Op, Expr>[]? _cachedItems;
-        public QueryPartsCollectionDebugView(NodeCollection<Op, Expr> collection)
+        public NodeCollectionDebugView(NodeCollection<Op, Expr> collection)
         {
             _collection = collection ?? throw new ArgumentNullException(nameof(collection));
         }
@@ -79,11 +79,11 @@ namespace Sag.Data.Common.Query
     }
 
 
-    internal sealed class QueryExprOperatorPairDebugView<op, expr> where op : Enum where expr:QueryNode
+    internal sealed class NodeOperatorPairDebugView<op, expr> where op : struct, Enum where expr:QueryNode
     {
         private readonly NodeOperatorPair<op, expr> _pair;
 
-        public QueryExprOperatorPairDebugView(NodeOperatorPair<op, expr> pair)
+        public NodeOperatorPairDebugView(NodeOperatorPair<op, expr> pair)
         {
             _pair = pair ?? throw new ArgumentNullException(nameof(pair));
         }
@@ -94,15 +94,15 @@ namespace Sag.Data.Common.Query
 
     }
 
-    internal sealed class QueryBlockDebugView<op, item, block> 
-        where op : Enum 
+    internal sealed class NodeBlockDebugView<op, item, block> 
+        where op :struct, Enum 
         where item : QueryItem,IEquatable<item>
         where block : QueryBlock<item, block, op>//,IEquatable<QueryBlock<item,block,op>>
     {
         private readonly QueryBlock<item, block, op> _queryBlock;
         private NodeOperatorPair<op,item>[] _cacheditems;
         private NodeOperatorPair<op, block>[]_cachedblocks;
-        public QueryBlockDebugView(QueryBlock<item, block, op> queryBlock)
+        public NodeBlockDebugView(QueryBlock<item, block, op> queryBlock)
         {
             _queryBlock = queryBlock;
         }

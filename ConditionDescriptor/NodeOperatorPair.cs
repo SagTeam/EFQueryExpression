@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
+using Sag.Data.Common.Query.Internal;
 
 namespace Sag.Data.Common.Query
 {
@@ -10,44 +12,34 @@ namespace Sag.Data.Common.Query
     /// <typeparam name="TNode"></typeparam>
     //[DebuggerTypeProxy(typeof(QueryExprOperatorPairDebugView<,>))]
     [DebuggerDisplay("NodeOperatorPair: op={Operator} ; {Node}")]
-    //[Serializable]
-   public  class NodeOperatorPair<TOperator, TNode> where TOperator : Enum where TNode : QueryNode//,IEquatable<TNode>
+    [JsonConverter(typeof(NodeOperatorJsonConverter))]
+    public class NodeOperatorPair<TOperator, TNode>
+        where TOperator : struct, Enum
+        where TNode : QueryNode//,IEquatable<TNode>
     {
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         internal uint hashCode;
 
-        public TOperator Operator { get;  set; }   // Flag of entry
+        [JsonPropertyName("op")]
+        public TOperator Operator { get; set; }   // Flag of entry
 
-        public TNode Node { get;  set; }         // Value of entry
+        public TNode Node { get; set; }         // Value of entry
 
         public NodeOperatorPair() { }
 
-        internal NodeOperatorPair(TOperator op,TNode value)
+        public NodeOperatorPair(TOperator op, TNode value)
         {
             Operator = op;
             Node = value;
         }
 
-        public override string ToString()
+        public override int GetHashCode()
         {
-            var sb = StringBuilderCache.GetInstance();
-            sb.Append("{Operator:");
-
-            if (Operator != null)
-            {
-                sb.Append(Operator);
-            }
-            sb.Append(",");
-            sb.Append("Node:");
-
+            if (hashCode != 0)
+                return (int)hashCode;
             if (Node != null)
-            {
-                sb.Append(Node);
-            }
-
-            sb.Append('}');
-
-            return StringBuilderCache.GetString(sb);
+                return HashCode.Combine(Node.GetHashCode(), Operator);
+            return base.GetHashCode();
         }
     }
 

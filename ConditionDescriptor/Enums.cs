@@ -88,37 +88,46 @@
         /// </summary>
         /// <remarks></remarks>
         Sum, //（求和）
-             /// <summary>
-             /// 平均值
-             /// </summary>
-             /// <remarks></remarks>
+        /// <summary>
+        /// 平均值
+        /// </summary>
+        /// <remarks></remarks>
         Avg, //（平均）
-             /// <summary>
-             /// 最小值
-             /// </summary>
-             /// <remarks></remarks>
+        /// <summary>
+        /// 最小值
+        /// </summary>
+        /// <remarks></remarks>
         Min, //（最小值）
-             /// <summary>
-             /// 最大值
-             /// </summary>
-             /// <remarks></remarks>
+        /// <summary>
+        /// 最大值
+        /// </summary>
+        /// <remarks></remarks>
         Max, //（最大值）
-             /// <summary>
-             /// 计数
-             /// </summary>
-             /// <remarks></remarks>
+        /// <summary>
+        /// 计数
+        /// </summary>
+        /// <remarks></remarks>
         Count, //（计数）
-               /// <summary>
-               /// 统计标准偏差
-               /// </summary>
-               /// <remarks></remarks>
+        /// <summary>
+        /// 统计标准偏差
+        /// </summary>
+        /// <remarks></remarks>
         StDev, //（统计标准偏差）
-               /// <summary>
-               /// 统计方差
-               /// </summary>
-               /// <remarks></remarks>
+        /// <summary>
+        /// 统计方差
+        /// </summary>
+        /// <remarks></remarks>
         Var //（统计方差）。
 
+    }
+
+    /// <summary>
+    /// 排序方向
+    /// </summary>
+    public enum QueryOrderByDirection
+    {
+        Ascending,
+        Descending
     }
 
     /// <summary>
@@ -129,8 +138,6 @@
     {
         And,
         Or,
-        Not,
-        Any,
         /// <summary>
         /// 当非用于参数组的首个参数(组)时,将被自动更改为LgAnd.
         /// </summary>
@@ -164,6 +171,10 @@
         /// 求余
         /// </summary>
         Mod,
+        /// <summary>
+        /// 幂
+        /// </summary>
+        Power,
         /// <summary>
         /// 条件选择 case when then else end   a==b ? c:d
         /// </summary>
@@ -202,18 +213,50 @@
     }
 
     /// <summary>
-    /// 查询值标记,:字段/字段值
+    /// 一个表示查询项为:<inheritdoc cref="Value"/>
+    /// 或<inheritdoc cref="Property"/>
+    /// 或<inheritdoc cref="Condition"/>
+    /// 的标记
     /// </summary>
-    public enum QueryValueFlag
+    public enum NodeItemFlag
     {
         /// <summary>
-        /// 要查询的字段值
+        /// 查询值
         /// </summary>
         Value,
         /// <summary>
-        /// 字段属性
+        /// 字段(属性)
         /// </summary>
-        Property
+        Property,
+        /// <summary>
+        /// 条件项
+        /// </summary>
+        Condition
     }
 
+    public enum TypeConvertStrategy
+    {
+        /// <summary>
+        /// 无转换
+        /// </summary>
+        NoChange,
+        /// <summary>
+        /// 指定类型
+        /// </summary>
+        SpecifyType,
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum QueryExistsHandling
+    {
+        /// <summary>
+        /// exists (select top 1 1 from ...)
+        /// </summary>
+        Any,
+        /// <summary>
+        /// not (not exists (select top 1 1 from ...))
+        /// </summary>
+        All
+    }
 }

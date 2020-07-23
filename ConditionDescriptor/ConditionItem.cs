@@ -1,8 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json.Serialization;
+using Sag.Data.Common.Query.Internal;
 
 namespace Sag.Data.Common.Query
 {
@@ -11,7 +13,8 @@ namespace Sag.Data.Common.Query
     /// <summary>
     /// 一个查询条件子句:例如它表示这样的作用:field1+2+field2=5*3.
     /// </summary>
-    public class ConditionItem : QueryItem, IEquatable<ConditionItem>
+    [DebuggerDisplay("QueryBlock:Left[Item:{PropertyBlock.ItemCount},Block:{PropertyBlock.BlockCount}],Right[Item:{PropertyBlock.ItemCount},Block:{ValueBlock.BlockCount}]")]
+    public class ConditionItem : QueryItem //,  IEquatable<ConditionItem>
     {
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private NodeBlock _ValueBlock;
@@ -28,19 +31,19 @@ namespace Sag.Data.Common.Query
             Comparison = comparison;
         }
 
-        public ConditionItem(NodeBlock propertys, QueryComparison comparison, NodeItem value, Type typeAs)
+        public ConditionItem(NodeBlock propertys, QueryComparison comparison, ValueItem value, Type typeAs)
             : this(propertys, comparison, SetValueBlock(value), typeAs) { }
 
         public ConditionItem(NodeBlock propertys, QueryComparison comparison, object value, Type typeAs)
             : this(propertys, comparison, SetValueBlock(value), typeAs) { }
 
-        public ConditionItem(NodeItem property, QueryComparison comparison, NodeBlock value, Type typeAs)
+        public ConditionItem(ValueItem property, QueryComparison comparison, NodeBlock value, Type typeAs)
             : this(SetPropertyBlock(property), comparison, value, typeAs) { }
 
-        public ConditionItem(NodeItem property, QueryComparison comparison, NodeItem value, Type typeAs)
+        public ConditionItem(ValueItem property, QueryComparison comparison, ValueItem value, Type typeAs)
             : this(SetPropertyBlock(property), comparison, SetValueBlock(value), typeAs) { }
 
-        public ConditionItem(NodeItem property, QueryComparison comparison, object value, Type typeAs)
+        public ConditionItem(ValueItem property, QueryComparison comparison, object value, Type typeAs)
             : this(SetPropertyBlock(property), comparison, SetValueBlock(value), typeAs) { }
 
         /// <summary>
@@ -53,7 +56,7 @@ namespace Sag.Data.Common.Query
         public ConditionItem(string name, QueryComparison comparison, NodeBlock value, Type typeAs)
             : this(SetPropertyBlock(name), comparison, value, typeAs) { }
 
-        public ConditionItem(string name, QueryComparison comparison, NodeItem value, Type typeAs)
+        public ConditionItem(string name, QueryComparison comparison, ValueItem value, Type typeAs)
         : this(SetPropertyBlock(name), comparison, SetValueBlock(value), typeAs) { }
 
         /// <summary>
@@ -84,19 +87,19 @@ namespace Sag.Data.Common.Query
         {
             if (value is NodeBlock vb)
                 return vb;
-            else if (value is NodeItem vi)
+            else if (value is ValueItem vi)
                 return new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, vi);
             else if (value is IEnumerable<NodeBlock> vblst)
                 return new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, vblst.ToArray());
-            else if (value is IEnumerable<NodeItem> iblst)
+            else if (value is IEnumerable<ValueItem> iblst)
                 return new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, iblst.ToArray());
             else
-                return new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, new NodeItem(value));
+                return new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, new ValueItem( value));
 
         }
         // static NodeBlock SetValueBlock(NodeBlock value) => value;
 
-        static NodeBlock SetValueBlock(NodeItem value) => new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, value);
+        static NodeBlock SetValueBlock(ValueItem value) => new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, value);
 
 
         #endregion set value block
@@ -104,10 +107,10 @@ namespace Sag.Data.Common.Query
         #region set property block
         // static NodeBlock SetPropertyBlock(NodeBlock value) => value;
 
-        static NodeBlock SetPropertyBlock(NodeItem value) => new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, value);
+        static NodeBlock SetPropertyBlock(ValueItem value) => new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, value);
 
         static NodeBlock SetPropertyBlock(string value, Type typeAs = null)
-            => new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, new NodeItem(QueryValueFlag.Property, value, typeAs));
+            => new NodeBlock(QueryArithmetic.Add, InsertionBehavior.Duplicates, new ValueItem( value, typeAs));
 
 
         #endregion set property block
@@ -121,11 +124,10 @@ namespace Sag.Data.Common.Query
         /// </summary>
         public NodeBlock PropertyBlock
         {
-            get { return _propertyBlock; }
+            get { if (_propertyBlock == null) _propertyBlock = new NodeBlock();  return _propertyBlock; }
             set
             {
                 _propertyBlock = value;
-                //base.InternalValue = value;
             }
         }
 
@@ -134,7 +136,7 @@ namespace Sag.Data.Common.Query
         /// </summary>
         public NodeBlock ValueBlock
         {
-            get => _ValueBlock;
+            get { if (_ValueBlock == null) _ValueBlock = new NodeBlock();return _ValueBlock; }
             set => _ValueBlock = value;
         }
 
@@ -145,6 +147,7 @@ namespace Sag.Data.Common.Query
         /// 如果未指定本属性,优先使用属性的强制类型,
         /// 可能返回null,属性和值都没有指定强制类型,(后续将自动识别类型).
         /// </summary>
+        [JsonConverter(typeof(TypeToJsonConverter))]
         private new Type TypeAs
         {
             get
@@ -166,6 +169,8 @@ namespace Sag.Data.Common.Query
         /// 比较操作符
         /// </summary>
         public QueryComparison Comparison { get; set; }
+        public override NodeItemFlag Flag { get=> NodeItemFlag.Condition; }
+        public override Type DataType { get; }
 
         //public string QueryComparisonString { get => Comparison.ToString(); set => Comparison = GetComparisonWithString(value); }
 
@@ -196,7 +201,7 @@ namespace Sag.Data.Common.Query
                 "isnull" => QueryComparison.IsNullValue,
                 _ => QueryComparison.Contains,
             };
-          
+
         }
 
         #endregion //private func
@@ -205,31 +210,9 @@ namespace Sag.Data.Common.Query
 
         public override int GetHashCode()
         {
-            var h1 = _propertyBlock.GetHashCode();
-            var hs = HashCode.Combine(h1, Comparison, this.InternalKey);
+            var hs = CombineHashCode(_propertyBlock.GetHashCode(), Comparison.GetHashCode(),  _ValueBlock.GetHashCode());
             return hs;
         }
-
-
-        public override bool Equals([AllowNull] QueryNode other)
-        {
-            return GetEqualComparer().Equals(other);
-        }
-
-        public bool Equals(ConditionItem other)
-        {
-            return GetEqualComparer().Equals(other);
-        }
-
-        //public static bool operator ==(QueryConditionItem left, QueryConditionItem right)
-        //{
-        //    return left.CompareTo(right) == 0;
-        //}
-
-        //public static bool operator !=(QueryConditionItem left, QueryConditionItem right)
-        //{
-        //    return left.CompareTo(right) != 0;
-        //}
 
         #endregion //实现比较接口相关
 

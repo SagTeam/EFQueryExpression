@@ -61,6 +61,15 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
+        ///   查找类似 方法{0}参数索引超出范围。 的本地化字符串。
+        /// </summary>
+        internal static string ArgumentsIndexOutOfRange {
+            get {
+                return ResourceManager.GetString("ArgumentsIndexOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 转换目标 的本地化字符串。
         /// </summary>
         internal static string DestTypeForConvert {
@@ -70,7 +79,7 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 目标集合不允许为空! 的本地化字符串。
+        ///   查找类似 目标集合不允许为空！ 的本地化字符串。
         /// </summary>
         internal static string ExpectedMemberListNull {
             get {
@@ -88,7 +97,7 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 值 &apos;{0}&apos; 不是类型 &apos;{1}&apos; 无法应用到集合. 的本地化字符串。
+        ///   查找类似 值 “{0}” 不是类型 “{1}” 无法应用到集合。 的本地化字符串。
         /// </summary>
         internal static string InvalidObjectType {
             get {
@@ -97,7 +106,16 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 类型{0}转换错误! 的本地化字符串。
+        ///   查找类似 参数{0}类型错误，应为{1}。 的本地化字符串。
+        /// </summary>
+        internal static string InvalidParamType {
+            get {
+                return ResourceManager.GetString("InvalidParamType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 类型{0}转换错误！ 的本地化字符串。
         /// </summary>
         internal static string InvalidTypeConvert {
             get {
@@ -106,16 +124,43 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 参数: {0}值错误 的本地化字符串。
+        ///   查找类似 参数: “{0}”值错误 的本地化字符串。
         /// </summary>
-        internal static string Invalidvalue {
+        internal static string InvalidValue {
             get {
-                return ResourceManager.GetString("Invalidvalue", resourceCulture);
+                return ResourceManager.GetString("InvalidValue", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   查找类似  &apos;{0}&apos; 不是类型 &apos;{1}&apos; 的定义 的本地化字符串。
+        ///   查找类似 无法转换Json:”{0}“到”{1}“。 的本地化字符串。
+        /// </summary>
+        internal static string JsonCannotConvertToType {
+            get {
+                return ResourceManager.GetString("JsonCannotConvertToType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 在Json反系列化集合节点过程发生了错误。 的本地化字符串。
+        /// </summary>
+        internal static string JsonDeserializeCollectionHasError {
+            get {
+                return ResourceManager.GetString("JsonDeserializeCollectionHasError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 令牌:“{0}”不是Json属性名称令牌类型 。 的本地化字符串。
+        /// </summary>
+        internal static string JsonTokenTypeNotPropertyName {
+            get {
+                return ResourceManager.GetString("JsonTokenTypeNotPropertyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似  “{0}” 不是类型 “{1}” 的定义 的本地化字符串。
         /// </summary>
         internal static string MemberNotDefinedForType {
             get {
@@ -124,7 +169,25 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 未设置获取操作符枚举的函数委托.请先设置属性{0}. 的本地化字符串。
+        ///   查找类似 不是Json数组开头界定。 的本地化字符串。
+        /// </summary>
+        internal static string NotJsonArrayStart {
+            get {
+                return ResourceManager.GetString("NotJsonArrayStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 不是Json对象开头界定。 的本地化字符串。
+        /// </summary>
+        internal static string NotJsonObjectStart {
+            get {
+                return ResourceManager.GetString("NotJsonObjectStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 未设置获取操作符枚举的函数委托.请先设置属性“{0}“。 的本地化字符串。
         /// </summary>
         internal static string NullGetOperatorWithStringDelegate {
             get {
@@ -142,7 +205,7 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 属性 &apos;{0}&apos; 没有读访问器 的本地化字符串。
+        ///   查找类似 属性 ”{0}“ 没有读访问器 的本地化字符串。
         /// </summary>
         internal static string PropertyDoesNotHaveGetter {
             get {
@@ -151,7 +214,16 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 {0} 类型不能为空! 的本地化字符串。
+        ///   查找类似 属性名称不能为空！ 的本地化字符串。
+        /// </summary>
+        internal static string PropertyNameCanotNull {
+            get {
+                return ResourceManager.GetString("PropertyNameCanotNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 ”{0}“ 类型不能为空！ 的本地化字符串。
         /// </summary>
         internal static string TypeCannotNull {
             get {
@@ -160,7 +232,7 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 类型 {0} 包含泛型参数 的本地化字符串。
+        ///   查找类似 类型 ”{0}“ 包含泛型参数 的本地化字符串。
         /// </summary>
         internal static string TypeContainsGenericParameters {
             get {
@@ -169,7 +241,7 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 类型 &apos;{0}&apos; 不可枚举 的本地化字符串。
+        ///   查找类似 类型 ”{0}“ 不可枚举 的本地化字符串。
         /// </summary>
         internal static string TypeNotIEnumerable {
             get {
@@ -178,7 +250,7 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 类型参数不能为委托类型 的本地化字符串。
+        ///   查找类似 类型参数不能为委托类型。 的本地化字符串。
         /// </summary>
         internal static string TypeParameterIsNotDelegate {
             get {
@@ -187,7 +259,7 @@ namespace Sag.Data.Common.Query {
         }
         
         /// <summary>
-        ///   查找类似 值不能为空! 的本地化字符串。
+        ///   查找类似 {0},值不能为空！ 的本地化字符串。
         /// </summary>
         internal static string ValueCannotNull {
             get {
